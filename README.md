@@ -135,3 +135,4 @@ model_vgg19_cutoff = tf.keras.Model(inputs=model_vgg19.input, outputs=target)
 activations = model_vgg19_cutoff.predict(x)
 plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ```
+![activations](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activations.png?raw=true)
