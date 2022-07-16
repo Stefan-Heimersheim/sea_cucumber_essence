@@ -90,3 +90,48 @@ im.save("node4.png")
 ```
 
 ## The confusing part
+Judging my the [OpenAI Microscope](https://microscope.openai.com/models/vgg19_caffe/conv5_4_conv5_4_0/4) it looks like the node mostly gets activated by furry animals -- _in the training set_. Of course our image in artificial and this far outside the usual distribution, and we can expect such different behaviour. But why do we get the `sea_cucumber` prediction, rather than predictions of `dog`, `bison` or `lion`?
+
+Feeding this image into the network, it seems insanely sure that the right label is `sea_cucumber`. Also other imagenet-trained networks such as Inception or VGG16 give the same result. Note: This was not indended and not optimized for.
+
+```python
+model_vgg19 = tf.keras.applications.VGG19(weights='imagenet', include_top=True)
+x = tf.keras.applications.vgg19.preprocess_input(np.expand_dims(img, axis=0))
+predictions = model_vgg19.predict(x)
+print('Predicted:', tf.keras.applications.vgg19.decode_predictions(predictions, top=3)[0])
+```
+```
+Predicted: [('n02321529', 'sea_cucumber', 1.0), ('n01924916', 'flatworm', 1.2730256e-33), ('n01981276', 'king_crab', 2.537045e-37)]
+```
+
+```python
+model_vgg16 = tf.keras.applications.VGG16(weights='imagenet', include_top=True)
+x = tf.keras.applications.vgg16.preprocess_input(np.expand_dims(img, axis=0))
+predictions = model_vgg16.predict(x)
+print('Predicted:', tf.keras.applications.vgg16.decode_predictions(predictions, top=3)[0])
+```
+```
+Predicted: [('n02321529', 'sea_cucumber', 1.0), ('n01950731', 'sea_slug', 4.6657154e-15), ('n01924916', 'flatworm', 1.810621e-15)]
+```
+
+```python
+model_resnet = tf.keras.applications.ResNet50(weights='imagenet', include_top=True)
+x = tf.keras.applications.resnet.preprocess_input(np.expand_dims(img, axis=0))
+predictions = model_resnet.predict(x)
+print('Predicted:', tf.keras.applications.resnet.decode_predictions(predictions, top=3)[0])
+```
+```
+Predicted: [('n02321529', 'sea_cucumber', 0.9790509), ('n12144580', 'corn', 0.00899157), ('n13133613', 'ear', 0.005869923)]
+```
+
+Even this online service ([snaplogic using Inception](https://www.snaplogic.com/machine-learning-showcase/image-recognition-inception-v3)) mistakes a picture of my phone screen showing the image:
+![recognize](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/recognize.png?raw=true)
+
+## Investigation
+Let's look at the activations, after feeding the image into the VGG19 network I have been using:
+```python
+target = [model_vgg19.get_layer("block5_conv4").output]
+model_vgg19_cutoff = tf.keras.Model(inputs=model_vgg19.input, outputs=target)
+activations = model_vgg19_cutoff.predict(x)
+plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
+```
