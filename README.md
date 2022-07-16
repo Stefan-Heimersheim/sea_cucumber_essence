@@ -3,6 +3,7 @@ Experiments with CNN features and circuits
 ## Topic
 This image activates node `4` in the `block5_conv4` layer of `VGG19`. Why does it look like `sea_cucumber`?
 
+![node4](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/node4.png?raw=true)
 ## Backstory
 Using my [feature extraction](https://github.com/Stefan-Heimersheim/tensorflow-feature-extraction-tutorial/) script I analyzed 
 node `4` in the `block5_conv4` layer of `VGG19`:
@@ -86,5 +87,6 @@ img = tf.cast(255*(img + 1.0)/2.0, tf.uint8)
 plt.imshow(np.array(img))
 im = Image.fromarray(np.array(img))
 im.save("node4.png")
-
 ```
+
+## The confusing part
