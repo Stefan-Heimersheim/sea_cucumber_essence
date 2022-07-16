@@ -136,3 +136,6 @@ activations = model_vgg19_cutoff.predict(x)
 plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ```
 ![activations](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activations.png?raw=true)
+So the question we're asking, is this the typical pattern for a `dog` or `bison`? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
+
+_Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
