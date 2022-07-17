@@ -211,6 +211,11 @@ plt.xlabel("Distance (L2 norm in 512 dimensions)")
 plt.savefig("distances_self.png", dpi=600)
 plt.show()
 ```
+![self_distances](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/distances_self.png?raw=true)
+Okay the method clearly works, images in the same class have a smaller distance to each other, than to a member from another class (well this was one example but I expect this to hold generally).
 
+In retrospective the previous result makes sense, given that our node4-maximizng image is not a member of the groenendael class. And of course it gives some confirmation to the idea that classes are encoded as areas in the 512-dim activation space, and specifically not 1-hot encoded (i..e not one activation mapping to every class).
+
+Now I would like to (a) see how large the distances from `sea_cucumber` samples to our node4-maximizng image is -- it could be the same as the self-distances of the `sea_cucumber` class, or significantly further away but still closest to `sea_cucumber` than any other class (remember, distances in 512 dimensions can be huge, there is lots of space!). And (b) it would be great to get a kind of higher-dimensional view compressed down to 2D (PCA? t-SNE?).
 
 _Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
