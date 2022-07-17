@@ -172,7 +172,6 @@ Hmm I don't really see a pattern by eye here, nor a similarity to above / excita
 node4max_activations = model_vgg19_cutoff.predict(tf.keras.applications.vgg19.preprocess_input(np.expand_dims(img, axis=0)))
 
 import glob
-groenendael_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056/*.JPEG")
 def get_activations(img_path):
 	x = image.load_img(img_path, target_size=(224, 224))
 	x = image.img_to_array(x)
@@ -181,9 +180,14 @@ def get_activations(img_path):
 	activations = model_vgg19_cutoff.predict(x)
 	return activations
 
+def distance(a,b=node4max_activations):
+	return np.sqrt(np.sum((a-b)**2))
+
+groenendael_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056_*.JPEG")[::10]
 groenendael_activations = [get_activations(i) for i in groenendael_images]
+
 # First 200 of 1st category, for comparison
-tench_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056/*.JPEG")[:200]
+tench_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056_*.JPEG")[:200]
 tench_activations = [get_activations(i) for i in tench_images] #for comparison
 
 def distance(a,b=node4max_activations):
@@ -193,6 +197,50 @@ groenendael_distances = [distance(a) for a in groenendael_activations]
 tench_distances = [distance(a) for a in tench_activations]
 
 plt.hist(tench_distances, color="grey", density=True, bins=100)
+plt.hist(groenendael_distances, color="red", density=True, bins=100, alpha=0.5)
+plt.xlabel("Distance (L2 norm in 512 dimensions)")
+plt.savefig("distances.png", dpi=600)
+plt.show()
+```
+```python
+# 10 randomly selected categories
+categories = {
+	"n02096437": {},
+	"n02917067": {},
+	"n04465501": {},
+	"n04125021": {},
+	"n02892767": {},
+	"n03594734": {},
+	"n03196217": {},
+	"n03485794": {},
+	"n02088364": {},
+	"n03223299": {}
+}
+for cat categories.keys():
+	print(key)
+	categories[key]["images"] = glob.glob("/data/nfs/ILSVRC2012_img_train/"+key+"_*.JPEG")[::10]
+	categories[key]["activations"] = [get_activations(i) for i in categories[key]["images"]]
+
+categories["random"] = {}
+categories["random"]["images"] = np.random.choice(glob.glob("/data/nfs/ILSVRC2012_img_train/n*.JPEG"), replace=False, size=33)
+categories["random"]["activations"] =  [get_activations(i) for i in categories["random"]["images"]]
+
+random_distances = []
+self_distances = []
+for key in categories.keys():
+	if key=="random":
+		for a in categories["random"]["activations"]:
+			for b in categories["random"]["activations"]:
+				if a!=b:
+					random_distances.append(distance(a=a, b=b))
+	else:
+		for a in categories[key]["activations"]:
+			for b in categories[key]["activations"]:
+			if a!=b:
+				self_distances.append(distance(a=a, b=b)
+
+
+plt.hist(categories["random"]["distances"], color="grey", density=True, bins=100)
 plt.hist(groenendael_distances, color="red", density=True, bins=100, alpha=0.5)
 plt.xlabel("Distance (L2 norm in 512 dimensions)")
 plt.savefig("distances.png", dpi=600)
