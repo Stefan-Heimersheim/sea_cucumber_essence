@@ -168,9 +168,18 @@ plt.show()
 ```
 ![groenendael](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/groenendael.png?raw=true)
 Hmm I don't really see a pattern by eye here, nor a similarity to above / excitation in index 4. Let's plot something like absolute distance in this 512-dim vector space, compared to the average distance.
+```python
+import glob
+groenendael_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056/*.JPEG")
+def get_activations(img_path):
+	x = image.load_img(img_path, target_size=(224, 224))
+	x = image.img_to_array(x)
+	x = np.expand_dims(x, axis=0)
+	x = tf.keras.applications.vgg19.preprocess_input(x)
+	activations = model_vgg19_cutoff.predict(x)
+	return activations
 
-
-
-
+groenendael_activations = [get_activations(i) for i in groenendael_images]
+```
 
 _Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
