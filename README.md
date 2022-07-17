@@ -195,10 +195,22 @@ tench_distances = [distance(a) for a in tench_activations]
 plt.hist(tench_distances, color="grey", density=True, bins=100)
 plt.hist(groenendael_distances, color="red", density=True, bins=100, alpha=0.5)
 plt.xlabel("Distance (L2 norm in 512 dimensions)")
-plt.savefig("distaces_512d.png", dpi=600)
+plt.savefig("distances.png", dpi=600)
 plt.show()
 ```
 ![distance_histogram](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/distances.png?raw=true)
 Hmm, doesn't look like we can see anything. Let's compare to distance within `groenendael` class for comparison:
+
+```python
+
+groenendael_self_distances = [distance(a, b=groenendael_activations[0]) for a in groenendael_activations[1:]]
+
+plt.hist(tench_distances, color="grey", density=True, bins=100)
+plt.hist(groenendael_self_distances, color="blue", density=True, bins=100, alpha=0.5)
+plt.xlabel("Distance (L2 norm in 512 dimensions)")
+plt.savefig("distances_self.png", dpi=600)
+plt.show()
+```
+
 
 _Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
