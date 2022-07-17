@@ -138,4 +138,28 @@ plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ![activations](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activations.png?raw=true)
 So the question we're asking, is this the typical pattern for a `dog` or `bison`? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
 
+Let's have a look at the `bison` and `groenendael` classes, I think those were some of the examples shown in the OpenAI Microscope. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
+
+```python
+def plot_activations(img_path, ax=None):
+	if ax==None:
+		fig, ax = plt.subplots()
+	x = image.load_img(img_path, target_size=(224, 224))
+	x = image.img_to_array(x)
+	x = np.expand_dims(x, axis=0)
+	x = tf.keras.applications.vgg19.preprocess_input(x)
+	activations = model_vgg19_cutoff.predict(x)
+	av_activations = np.mean(np.mean(np.mean(activations, axis=0), axis=0))
+	ax.plot(av_activations, axis=0)
+	ax.scatter(4, av_activations[4])
+	ax.set_xlabel("block5_conv4 index")
+	ax.set_ylabel("Activation value")
+```
+
+
+
+
+
+
+
 _Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
