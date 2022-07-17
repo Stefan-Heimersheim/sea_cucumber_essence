@@ -198,5 +198,7 @@ plt.xlabel("Distance (L2 norm in 512 dimensions)")
 plt.savefig("distaces_512d.png", dpi=600)
 plt.show()
 ```
+![distance_histogram](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/distances.png?raw=true)
+Hmm, doesn't look like we can see anything. Let's compare to distance within `groenendael` class for comparison:
 
 _Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
