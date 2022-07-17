@@ -132,6 +132,7 @@ Let's look at the activations, after feeding the image into the VGG19 network I 
 ```python
 target = [model_vgg19.get_layer("block5_conv4").output]
 model_vgg19_cutoff = tf.keras.Model(inputs=model_vgg19.input, outputs=target)
+x = tf.keras.applications.vgg19.preprocess_input(np.expand_dims(img, axis=0))
 activations = model_vgg19_cutoff.predict(x)
 plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ```
@@ -149,11 +150,21 @@ def plot_activations(img_path, ax=None):
 	x = np.expand_dims(x, axis=0)
 	x = tf.keras.applications.vgg19.preprocess_input(x)
 	activations = model_vgg19_cutoff.predict(x)
-	av_activations = np.mean(np.mean(np.mean(activations, axis=0), axis=0))
-	ax.plot(av_activations, axis=0)
+	av_activations = np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0)
+	ax.plot(av_activations)
 	ax.scatter(4, av_activations[4])
 	ax.set_xlabel("block5_conv4 index")
 	ax.set_ylabel("Activation value")
+	return ax
+```
+```python
+fig, axs = plt.subplots(nrows=3)
+fig.suptitle(" n02105056: groenendael")
+plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10005.JPEG", ax=axs[0])
+plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10013.JPEG", ax=axs[1])
+plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10020.JPEG", ax=axs[2])
+plt.savefig("groenendael.png", dpi=600)
+plt.show()
 ```
 
 
