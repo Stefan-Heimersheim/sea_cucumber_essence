@@ -137,9 +137,9 @@ activations = model_vgg19_cutoff.predict(x)
 plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ```
 ![activations](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activations.png?raw=true)
-So the question we're asking, is this the typical pattern for a `dog` or `bison`? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
+So the question we're asking, is this the typical pattern for a dog or bison? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
 
-Let's have a look at the `bison` and `groenendael` classes, I think those were some of the examples shown in the OpenAI Microscope. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
+Let's have a look at the `groenendael` (1st image in Microscope) and `ox` (3rd image in Microscope) classes. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
 
 ```python
 def plot_activations(img_path, ax=None):
@@ -166,8 +166,8 @@ plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10020.JPEG"
 plt.savefig("groenendael.png", dpi=600)
 plt.show()
 ```
-
-
+![groenendael](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/groenendael.png?raw=true)
+Hmm I don't really see a pattern by eye here, nor a similarity to above / excitation in index 4. Let's plot something like absolute distance in this 512-dim vector space, compared to the average distance.
 
 
 
