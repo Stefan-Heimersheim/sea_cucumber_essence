@@ -10,7 +10,7 @@ look like `sea_cucumber` to all ImageNet-trained CNNs?
 
 ## Context
 
-[skip to investigation](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/edit/main/README.md#investigation)
+[[Skip to Investigation]](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/README.md#investigation)
 
 Using my [feature extraction](https://github.com/Stefan-Heimersheim/tensorflow-feature-extraction-tutorial/) script I analyzed 
 node `4` in the `block5_conv4` layer of `VGG19`:
