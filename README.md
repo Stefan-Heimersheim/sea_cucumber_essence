@@ -1,10 +1,17 @@
 # sea_cucumber essence
-Experiments with CNN features and circuits
-## Topic
-This image activates node `4` in the `block5_conv4` layer of `VGG19`. Why does it look like `sea_cucumber`?
+Experiments with CNN features and circuits. 
+In short, why does this (maximized node `4` in the `block5_conv4` layer of `VGG19`)
 
 ![node4](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/node4.png?raw=true)
-## Backstory
+
+look like `sea_cucumber` to all ImageNet-trained CNNs?
+
+![tSNE](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/tSNE.png?raw=true)
+
+## Context
+
+[skip to investigation](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/edit/main/README.md#investigation)
+
 Using my [feature extraction](https://github.com/Stefan-Heimersheim/tensorflow-feature-extraction-tutorial/) script I analyzed 
 node `4` in the `block5_conv4` layer of `VGG19`:
 ```python
@@ -157,3 +164,5 @@ We learn three main things here:
 Naturally the L2-distance isn't the ideal way to reduce the 512-d space into something plot-able. One method I found is [t-SNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) which projects the 512-dimensions into two parameters which we can plot:
 ![tSNE](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/tSNE.png?raw=true)
 Looks like we get a nice separation (t-SNE does not know the labels) of different categories, and the "sea_cucumber essence" activations tend to lie within the `sea_cucumber` training data!
+
+This doesn't definitely answer the question, but I think it's clear that this node4-maximized image ends up in a corner of parameter space which, even though it is "far away" (L2 distance), lies in a region that is clearly near the region that `sea_cucumber` training images lie in. Presented with this out-of-distribution image, and tasked with choosing between only the existing categories, the network decides for `sea_cucumber`.
