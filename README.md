@@ -132,10 +132,28 @@ Let's look at the activations, after feeding the image into the VGG19 network I 
 ```python
 target = [model_vgg19.get_layer("block5_conv4").output]
 model_vgg19_cutoff = tf.keras.Model(inputs=model_vgg19.input, outputs=target)
+x = tf.keras.applications.vgg19.preprocess_input(np.expand_dims(img, axis=0))
 activations = model_vgg19_cutoff.predict(x)
 plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ```
 ![activations](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activations.png?raw=true)
-So the question we're asking, is this the typical pattern for a `dog` or `bison`? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
+So the question we're asking, is this the typical pattern for a dog or bison? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
+
+Let's have a look at the `groenendael` (1st image in Microscope) and `sea_cucumber` classes, as well as a few randomly selected ones. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
+![groenendael](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/groenendael.png?raw=true)
+Hmm I don't really see a pattern by eye here, nor a similarity to above / excitation in index 4. In hindsight this makes sense, we wouldn't expect the category to be simply 1-hot encoded in activation space, because a) there is not enough room, and b) there are more layers following so I would rather think of some clusters in the high dimensional activation space. Let's maybe look some summary statistic, like the absolute distance in this 512-dim vector space.
+
+So I take the training images, feed them into the network and read of the activations of the 512 nodes in the layer we are looking at (averaged over the 14x14 locations). Then I compute the distance as absolute distance between the vectors, 512-dimenisonal L2 norm.
+The image below shows the distance between the optimized "sea_cucumber essence" image and the activations of `sea_cucumber` training data (green), `groenendael` (blue), and a mix of 10 random classes (100 random images each). The blue curve shows the average activation-distance between randomly selected images of different classes. The code for all the following plots can be found in `code_distances.py`.
+![distances](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activation_distances_node4maximized.png?raw=true)
+
+For context, here is the average distance between randomly selected images (grey), images from the same class (red) and images from different classes (blue):
+![distances](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activation_distances_general.png?raw=true)
+We learn three main things here:
+1. Generally images of the same class seem to be nearer to each other in this 512-dim space than random / different classes, but the effect is not very strong. Of course we wouldn't expect that the distance is the best measure of "closeness" between activations.
+2. These numbers are all waaaay smaller than the ~7k and 36k we get from the "sea_cucumber essence" image. This tells us (somewhat unsurprisingly) that that optimized image is far outside the training distribution in at least this measure.
+3. The `sea_cucumber` training data seems to give activations _slightly_ closer to the "sea_cucumber essence" image -- so maybe it's just far outside the distribution but into the `sea_cucumber` direction?
+
+Now I would like to (a) see how large the distances from `sea_cucumber` samples to our node4-maximizng image is -- it could be the same as the self-distances of the `sea_cucumber` class, or significantly further away but still closest to `sea_cucumber` than any other class (remember, distances in 512 dimensions can be huge, there is lots of space!). And (b) it would be great to get a kind of higher-dimensional view compressed down to 2D (PCA? t-SNE?).
 
 _Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
