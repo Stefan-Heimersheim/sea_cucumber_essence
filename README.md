@@ -1,5 +1,4 @@
-# sea_cucumber essence
-Experiments with CNN features and circuits. 
+# sea cucumber essence
 In short, why does this (maximized node `4` in the `block5_conv4` layer of `VGG19`)
 
 ![node4](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/node4.png?raw=true)
