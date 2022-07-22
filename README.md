@@ -139,130 +139,20 @@ plt.plot(np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0))
 ![activations](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activations.png?raw=true)
 So the question we're asking, is this the typical pattern for a dog or bison? Or maybe closer to the `sea_cucumber` pattern, in this 512-dimensional space?
 
-Let's have a look at the `groenendael` (1st image in Microscope) and `ox` (3rd image in Microscope) classes. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
-
-```python
-def plot_activations(img_path, ax=None):
-	if ax==None:
-		fig, ax = plt.subplots()
-	x = image.load_img(img_path, target_size=(224, 224))
-	x = image.img_to_array(x)
-	x = np.expand_dims(x, axis=0)
-	x = tf.keras.applications.vgg19.preprocess_input(x)
-	activations = model_vgg19_cutoff.predict(x)
-	av_activations = np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0)
-	ax.plot(av_activations)
-	ax.scatter(4, av_activations[4])
-	ax.set_xlabel("block5_conv4 index")
-	ax.set_ylabel("Activation value")
-	return ax
-```
-```python
-fig, axs = plt.subplots(nrows=3)
-fig.suptitle(" n02105056: groenendael")
-plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10005.JPEG", ax=axs[0])
-plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10013.JPEG", ax=axs[1])
-plot_activations("/data/nfs/ILSVRC2012_img_train/n02105056/n02105056_10020.JPEG", ax=axs[2])
-plt.savefig("groenendael.png", dpi=600)
-plt.show()
-```
+Let's have a look at the `groenendael` (1st image in Microscope) and `sea_cucumber` classes, as well as a few randomly selected ones. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
 ![groenendael](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/groenendael.png?raw=true)
-Hmm I don't really see a pattern by eye here, nor a similarity to above / excitation in index 4. Let's plot something like absolute distance in this 512-dim vector space, compared to the average distance.
-```python
-node4max_activations = model_vgg19_cutoff.predict(tf.keras.applications.vgg19.preprocess_input(np.expand_dims(img, axis=0)))
+Hmm I don't really see a pattern by eye here, nor a similarity to above / excitation in index 4. In hindsight this makes sense, we wouldn't expect the category to be simply 1-hot encoded in activation space, because a) there is not enough room, and b) there are more layers following so I would rather think of some clusters in the high dimensional activation space. Let's maybe look some summary statistic, like the absolute distance in this 512-dim vector space.
 
-import glob
-def get_activations(img_path):
-	x = image.load_img(img_path, target_size=(224, 224))
-	x = image.img_to_array(x)
-	x = np.expand_dims(x, axis=0)
-	x = tf.keras.applications.vgg19.preprocess_input(x)
-	activations = model_vgg19_cutoff.predict(x)
-	return activations
+So I take the training images, feed them into the network and read of the activations of the 512 nodes in the layer we are looking at (averaged over the 14x14 locations). Then I compute the distance as absolute distance between the vectors, 512-dimenisonal L2 norm.
+The image below shows the distance between the optimized "sea_cucumber essence" image and the activations of `sea_cucumber` training data (green), `groenendael` (blue), and a mix of 10 random classes (100 random images each). The blue curve shows the average activation-distance between randomly selected images of different classes. The code for all the following plots can be found in `code_distances.py`.
+![distances](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activation_distances_node4maximized.png?raw=true)
 
-def distance(a,b=node4max_activations):
-	return np.sqrt(np.sum((a-b)**2))
-
-groenendael_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056_*.JPEG")[::10]
-groenendael_activations = [get_activations(i) for i in groenendael_images]
-
-# First 200 of 1st category, for comparison
-tench_images = glob.glob("/data/nfs/ILSVRC2012_img_train/n02105056_*.JPEG")[:200]
-tench_activations = [get_activations(i) for i in tench_images] #for comparison
-
-def distance(a,b=node4max_activations):
-	return np.sqrt(np.sum((a-b)**2))
-
-groenendael_distances = [distance(a) for a in groenendael_activations]
-tench_distances = [distance(a) for a in tench_activations]
-
-plt.hist(tench_distances, color="grey", density=True, bins=100)
-plt.hist(groenendael_distances, color="red", density=True, bins=100, alpha=0.5)
-plt.xlabel("Distance (L2 norm in 512 dimensions)")
-plt.savefig("distances.png", dpi=600)
-plt.show()
-```
-```python
-# 10 randomly selected categories
-categories = {
-	"n02096437": {},
-	"n02917067": {},
-	"n04465501": {},
-	"n04125021": {},
-	"n02892767": {},
-	"n03594734": {},
-	"n03196217": {},
-	"n03485794": {},
-	"n02088364": {},
-	"n03223299": {}
-}
-for cat categories.keys():
-	print(key)
-	categories[key]["images"] = glob.glob("/data/nfs/ILSVRC2012_img_train/"+key+"_*.JPEG")[::10]
-	categories[key]["activations"] = [get_activations(i) for i in categories[key]["images"]]
-
-categories["random"] = {}
-categories["random"]["images"] = np.random.choice(glob.glob("/data/nfs/ILSVRC2012_img_train/n*.JPEG"), replace=False, size=33)
-categories["random"]["activations"] =  [get_activations(i) for i in categories["random"]["images"]]
-
-random_distances = []
-self_distances = []
-for key in categories.keys():
-	if key=="random":
-		for a in categories["random"]["activations"]:
-			for b in categories["random"]["activations"]:
-				if a!=b:
-					random_distances.append(distance(a=a, b=b))
-	else:
-		for a in categories[key]["activations"]:
-			for b in categories[key]["activations"]:
-			if a!=b:
-				self_distances.append(distance(a=a, b=b)
-
-
-plt.hist(categories["random"]["distances"], color="grey", density=True, bins=100)
-plt.hist(groenendael_distances, color="red", density=True, bins=100, alpha=0.5)
-plt.xlabel("Distance (L2 norm in 512 dimensions)")
-plt.savefig("distances.png", dpi=600)
-plt.show()
-```
-![distance_histogram](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/distances.png?raw=true)
-Hmm, doesn't look like we can see anything. Let's compare to distance within `groenendael` class for comparison:
-
-```python
-
-groenendael_self_distances = [distance(a, b=groenendael_activations[0]) for a in groenendael_activations[1:]]
-
-plt.hist(tench_distances, color="grey", density=True, bins=100)
-plt.hist(groenendael_self_distances, color="blue", density=True, bins=100, alpha=0.5)
-plt.xlabel("Distance (L2 norm in 512 dimensions)")
-plt.savefig("distances_self.png", dpi=600)
-plt.show()
-```
-![self_distances](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/distances_self.png?raw=true)
-Okay the method clearly works, images in the same class have a smaller distance to each other, than to a member from another class (well this was one example but I expect this to hold generally).
-
-In retrospective the previous result makes sense, given that our node4-maximizng image is not a member of the groenendael class. And of course it gives some confirmation to the idea that classes are encoded as areas in the 512-dim activation space, and specifically not 1-hot encoded (i..e not one activation mapping to every class).
+For context, here is the average distance between randomly selected images (grey), images from the same class (red) and images from different classes (blue):
+![distances](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/activation_distances_general.png?raw=true)
+We learn three main things here:
+1. Generally images of the same class seem to be nearer to each other in this 512-dim space than random / different classes, but the effect is not very strong. Of course we wouldn't expect that the distance is the best measure of "closeness" between activations.
+2. These numbers are all waaaay smaller than the ~7k and 36k we get from the "sea_cucumber essence" image. This tells us (somewhat unsurprisingly) that that optimized image is far outside the training distribution in at least this measure.
+3. The `sea_cucumber` training data seems to give activations _slightly_ closer to the "sea_cucumber essence" image -- so maybe it's just far outside the distribution but into the `sea_cucumber` direction?
 
 Now I would like to (a) see how large the distances from `sea_cucumber` samples to our node4-maximizng image is -- it could be the same as the self-distances of the `sea_cucumber` class, or significantly further away but still closest to `sea_cucumber` than any other class (remember, distances in 512 dimensions can be huge, there is lots of space!). And (b) it would be great to get a kind of higher-dimensional view compressed down to 2D (PCA? t-SNE?).
 
