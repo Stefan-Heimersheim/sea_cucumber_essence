@@ -312,7 +312,27 @@ plt.xlim(*xlim)
 plt.ylim(*ylim)
 plt.legend()
 plt.savefig("tSNE.png", dpi=600)
-plt.show()
+plt.close()
 
 # Huh, okay -- we don't kow what exactly tSNE is doing but the node4-maximized activations
 # always end up represented near the sea_cucumber training data!
+
+
+def plot_activations_direct(activations, ax=None):
+    if ax==None:
+        fig, ax = plt.subplots()
+    av_activations = np.mean(np.mean(np.mean(activations, axis=0), axis=0), axis=0)
+    ax.plot(av_activations)
+    ax.scatter(4, av_activations[4])
+    ax.set_xlabel("block5_conv4 index")
+    ax.set_ylabel("Activation value")
+    return ax
+
+
+fig, axs = plt.subplots(nrows=3)
+fig.suptitle(" n02321529: sea_cucumber")
+plot_activations_direct(seacucumber["activations"][33], ax=axs[0])
+plot_activations_direct(seacucumber["activations"][66], ax=axs[1])
+plot_activations_direct(seacucumber["activations"][99], ax=axs[2])
+plt.savefig("seacucumber.png", dpi=600)
+plt.close()
