@@ -154,6 +154,6 @@ We learn three main things here:
 2. These numbers are all waaaay smaller than the ~7k and 36k we get from the "sea_cucumber essence" image. This tells us (somewhat unsurprisingly) that that optimized image is far outside the training distribution in at least this measure.
 3. The `sea_cucumber` training data seems to give activations _slightly_ closer to the "sea_cucumber essence" image -- so maybe it's just far outside the distribution but into the `sea_cucumber` direction?
 
-Now I would like to (a) see how large the distances from `sea_cucumber` samples to our node4-maximizng image is -- it could be the same as the self-distances of the `sea_cucumber` class, or significantly further away but still closest to `sea_cucumber` than any other class (remember, distances in 512 dimensions can be huge, there is lots of space!). And (b) it would be great to get a kind of higher-dimensional view compressed down to 2D (PCA? t-SNE?).
-
-_Note to myself: Look at patterns for similar things (various dogs / animals?) and see if they look similar? What about some clustering like [t-SNE](https://distill.pub/2016/misread-tsne/) to help us?_
+Naturally the L2-distance isn't the ideal way to reduce the 512-d space into something plot-able. One method I found is [t-SNE](https://scikit-learn.org/stable/modules/generated/sklearn.manifold.TSNE.html) which projects the 512-dimensions into two parameters which we can plot:
+![tSNE](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/tSNE.png?raw=true)
+Looks like we get a nice separation (t-SNE does not know the labels) of different categories, and the "sea_cucumber essence" activations tend to lie within the `sea_cucumber` training data!
