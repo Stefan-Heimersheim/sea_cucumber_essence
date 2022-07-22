@@ -147,6 +147,7 @@ So the question we're asking, is this the typical pattern for a dog or bison? Or
 
 Let's have a look at the `groenendael` (1st image in Microscope) and `sea_cucumber` classes, as well as a few randomly selected ones. I downloaded the imagenet data and used [this list](https://image-net.org/challenges/LSVRC/2017/browse-synsets.php) to find the right files.
 ![groenendael](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/groenendael.png?raw=true)
+![seacucumber](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/seacucumber.png?raw=true)
 Hmm I don't really see a pattern by eye here, nor a similarity to above / excitation in index 4. In hindsight this makes sense, we wouldn't expect the category to be simply 1-hot encoded in activation space, because a) there is not enough room, and b) there are more layers following so I would rather think of some clusters in the high dimensional activation space. Let's maybe look some summary statistic, like the absolute distance in this 512-dim vector space.
 
 So I take the training images, feed them into the network and read of the activations of the 512 nodes in the layer we are looking at (averaged over the 14x14 locations). Then I compute the distance as absolute distance between the vectors, 512-dimenisonal L2 norm.
