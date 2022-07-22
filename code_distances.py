@@ -307,6 +307,7 @@ for key in names:
     plt.scatter(-1e3, -1e3, c=cdefault[i], label=val)
     i+=1
 
+plt.title("t-SNE embedding")
 plt.xlim(*xlim)
 plt.ylim(*ylim)
 plt.legend()
