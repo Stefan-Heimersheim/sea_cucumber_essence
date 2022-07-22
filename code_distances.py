@@ -277,21 +277,41 @@ ax1.set_xlabel("Distance (L2 norm in 512 dimensions)")
 fig.savefig("activation_distances_node4maximized.png", dpi=600)
 plt.close()
 
-
+# So given that node4-maximized point is waaay far out in activation-space (in absolute distance)
+# one would think the fact that it is classified as sea_cucumber is some artifact of the classifier
+# layers (i.e. the top dense layers), but then why is the effect persistent over VGG16, 19, Inception etc?
 
 from sklearn.manifold import TSNE
+from copy import deepcopy
 
-all_activations = np.array(all_activations)
-embedded = TSNE(n_components=2, learning_rate='auto', init='random').fit_transform(all_activations)
+activations_with_n4m = deepcopy(list(all_activations))
+activations_with_n4m.append(np.mean(np.mean(node4max10_activations[0], axis=0), axis=0))
+activations_with_n4m.append(np.mean(np.mean(node4max_activations[0], axis=0), axis=0))
+for i in range(len(seacucumber["activations"])):
+    activations_with_n4m.append(np.mean(np.mean(seacucumber["activations"][i][0], axis=0), axis=0))
+activations_with_n4m = np.array(activations_with_n4m)
 
-plt.scatter(*embedded.T, c=all_colours)
+tsne = TSNE(n_components=2, learning_rate='auto', init='random')
+embedded = tsne.fit_transform(activations_with_n4m)
+
+plt.figure(figsize=(14, 8))
+plt.scatter(*embedded[:-102].T, c=all_colours)
+plt.scatter(*embedded[-100:-2].T, c="grey", marker="x", s=60, label="sea cucumber")
+plt.scatter(*embedded[-2:].T, c="black", marker="*", s=100, label="node4-maximized activation")
+xlim = plt.xlim()
+ylim = plt.ylim()
 i=0
 for key in names:
     val = names[key]
     print(val)
-    plt.scatter(-1, -1, c=cdefault[i], label=val)
+    plt.scatter(-1e3, -1e3, c=cdefault[i], label=val)
     i+=1
+
+plt.xlim(*xlim)
+plt.ylim(*ylim)
 plt.legend()
 plt.savefig("tSNE.png", dpi=600)
-plt.close()
-# Assume node4 is some clasifier artifact -- surprisingly general in different models though!
+plt.show()
+
+# Huh, okay -- we don't kow what exactly tSNE is doing but the node4-maximized activations
+# always end up represented near the sea_cucumber training data!
