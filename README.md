@@ -3,6 +3,8 @@ In short, why does this (maximized node `4` in the `block5_conv4` layer of `VGG1
 
 ![node4](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/node4.png?raw=true)
 
+(for context on this feature vizualization also see my [blog post here](https://www.lesswrong.com/posts/raRSW3e9iYMwkqjBX/cnn-feature-visualization-in-50-lines-of-code))
+
 look like `sea_cucumber` to all ImageNet-trained CNNs?
 
 ![tSNE](https://github.com/Stefan-Heimersheim/sea_cucumber_essence/blob/main/tSNE.png?raw=true)
